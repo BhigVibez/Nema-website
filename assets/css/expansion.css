@@ -1,0 +1,1470 @@
+/* ==========================================================================
+   NEMA site expansion — departments, leadership archive, locations, media
+   Loaded after each page's inline stylesheet so it can build on the existing
+   design tokens without touching the base styles.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Navigation: "More" dropdown
+   -------------------------------------------------------------------------- */
+
+.nav-more {
+  position: relative;
+}
+
+.nav-more__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 40px;
+  padding: 0.55rem 0.85rem;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.94rem;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color 0.18s var(--ease), color 0.18s var(--ease);
+}
+
+.nav-more__btn:hover,
+.nav-more.is-open .nav-more__btn,
+.nav-more__btn.is-current {
+  background: var(--ink-100);
+  color: var(--text);
+}
+
+.nav-more__btn.is-current {
+  background: var(--brand-50);
+  color: var(--brand-800);
+}
+
+.nav-more__btn .icon {
+  width: 0.85em;
+  height: 0.85em;
+  transition: transform 0.2s var(--ease);
+}
+
+.nav-more.is-open .nav-more__btn .icon {
+  transform: rotate(180deg);
+}
+
+.nav-more__menu {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  z-index: 130;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 17rem;
+  max-width: min(23rem, calc(100vw - 2rem));
+  margin: 0;
+  padding: 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  list-style: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity 0.18s var(--ease), transform 0.18s var(--ease), visibility 0.18s;
+}
+
+/* Invisible bridge so the menu stays open while the pointer crosses the gap. */
+.nav-more__menu::before {
+  content: "";
+  position: absolute;
+  inset: -0.45rem 0 auto;
+  height: 0.45rem;
+}
+
+.nav-more.is-open .nav-more__menu {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+.nav-more__menu a {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-decoration: none;
+  white-space: normal;
+}
+
+.nav-more__menu a.nav-more__long {
+  font-weight: 700;
+}
+
+.nav-more__menu a:hover,
+.nav-more__menu a:focus-visible,
+.nav-more__menu a[aria-current="page"] {
+  background: var(--brand-50);
+  color: var(--brand-800);
+}
+
+.nav-more__menu .nav-more__label {
+  padding: 0.45rem 0.75rem 0.2rem;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+@media (min-width: 961px) {
+  .nav-more:hover .nav-more__menu,
+  .nav-more:focus-within .nav-more__menu {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+}
+
+@media (max-width: 960px) {
+  /* backdrop-filter on the header makes it the containing block for the
+     fixed drawer, which then shrinks to the header's height. Move the blur
+     to a pseudo-element so the drawer can size to the viewport again. */
+  .site-header {
+    backdrop-filter: none;
+  }
+
+  .site-header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: inherit;
+    backdrop-filter: saturate(160%) blur(12px);
+    pointer-events: none;
+  }
+
+  /* The sticky header is its own stacking context (z-index 90) and the nav
+     panel lives inside it. The body-level scrim (z-index 110) would paint
+     over the open panel, so lift the header while the menu is open. */
+  body.nav-open .site-header {
+    z-index: 130;
+  }
+
+  .nav-more__btn {
+    width: 100%;
+    justify-content: space-between;
+    padding: 0.8rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 1.05rem;
+  }
+
+  .nav-more__menu {
+    position: static;
+    min-width: 0;
+    margin: 0.1rem 0 0.35rem 0.6rem;
+    padding: 0.2rem 0 0.2rem 0.55rem;
+    border: 0;
+    border-left: 2px solid var(--border);
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    opacity: 1;
+    visibility: hidden;
+    transform: none;
+    display: none;
+  }
+
+  .nav-more.is-open .nav-more__menu {
+    display: flex;
+    visibility: visible;
+  }
+
+  .nav-more__menu a {
+    white-space: normal;
+    font-size: 0.98rem;
+  }
+
+  .nav-more__menu .nav-more__label {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   1b. Navigation: Director General's Office dropdown (departments)
+   -------------------------------------------------------------------------- */
+
+.nav-dg {
+  position: relative;
+}
+
+.nav-dg__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 40px;
+  padding: 0.55rem 0.85rem;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.94rem;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color 0.18s var(--ease), color 0.18s var(--ease);
+}
+
+.nav-dg__btn:hover,
+.nav-dg.is-open .nav-dg__btn,
+.nav-dg__btn.is-current {
+  background: var(--ink-100);
+  color: var(--text);
+}
+
+.nav-dg__btn .icon {
+  width: 0.85em;
+  height: 0.85em;
+  transition: transform 0.2s var(--ease);
+}
+
+.nav-dg.is-open .nav-dg__btn .icon {
+  transform: rotate(180deg);
+}
+
+.nav-dg__menu {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  z-index: 130;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 22rem;
+  max-width: min(28rem, calc(100vw - 2rem));
+  max-height: min(72vh, 34rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 0;
+  padding: 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  list-style: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity 0.18s var(--ease), transform 0.18s var(--ease), visibility 0.18s;
+}
+
+.nav-dg__menu::before {
+  content: "";
+  position: absolute;
+  inset: -0.45rem 0 auto;
+  height: 0.45rem;
+}
+
+.nav-dg.is-open .nav-dg__menu {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+.nav-dg__menu a {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-decoration: none;
+  white-space: normal;
+}
+
+.nav-dg__menu a:hover,
+.nav-dg__menu a:focus-visible,
+.nav-dg__menu a[aria-current="page"] {
+  background: var(--brand-50);
+  color: var(--brand-800);
+}
+
+.nav-dg__menu .nav-dg__label {
+  padding: 0.45rem 0.75rem 0.2rem;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.nav-dg__menu .nav-dg__label ~ .nav-dg__label {
+  margin-top: 0.25rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--border);
+}
+
+@media (min-width: 961px) {
+  .nav-dg:hover .nav-dg__menu,
+  .nav-dg:focus-within .nav-dg__menu {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+}
+
+@media (max-width: 960px) {
+  .nav-dg__btn {
+    width: 100%;
+    justify-content: space-between;
+    padding: 0.8rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 1.05rem;
+  }
+
+  .nav-dg__menu {
+    position: static;
+    min-width: 0;
+    max-height: none;
+    overflow: visible;
+    margin: 0.1rem 0 0.35rem 0.6rem;
+    padding: 0.2rem 0 0.2rem 0.55rem;
+    border: 0;
+    border-left: 2px solid var(--border);
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    opacity: 1;
+    visibility: hidden;
+    transform: none;
+    display: none;
+  }
+
+  .nav-dg.is-open .nav-dg__menu {
+    display: flex;
+    visibility: visible;
+  }
+
+  .nav-dg__menu a {
+    white-space: normal;
+    font-size: 0.98rem;
+  }
+
+  .nav-dg__menu .nav-dg__label {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   1c. Header density and tablet navigation
+   The DG's Office/Departments menu adds a seventh top-level item, so the
+   header needs a little more room. Stack the wordmark, tighten the links in
+   the narrow desktop band, and use the off-canvas menu from 960px down.
+   -------------------------------------------------------------------------- */
+
+.site-header .brand__text {
+  flex-direction: column;
+  align-items: flex-start;
+  column-gap: 0;
+  row-gap: 0.05rem;
+}
+
+.site-header .brand__sub {
+  padding-left: 0;
+  border-left: 0;
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+  white-space: normal;
+  max-width: 22ch;
+}
+
+@media (min-width: 961px) and (max-width: 1200px) {
+  .primary-nav a,
+  .nav-dg__btn,
+  .nav-more__btn {
+    padding: 0.42rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .nav-dg__btn {
+    min-height: 34px;
+  }
+
+  .header-actions {
+    gap: 0.12rem;
+    margin-left: 0.1rem;
+  }
+
+  .header-cta {
+    margin-left: 0.1rem;
+    padding-inline: 0.55rem;
+  }
+}
+
+@media (max-width: 960px) {
+  .primary-nav {
+    position: fixed;
+    inset: 0 0 0 auto;
+    z-index: 120;
+    width: min(380px, 90vw);
+    margin: 0;
+    padding: calc(var(--header-h) + 1.5rem) 1.25rem 2rem;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+    transform: translateX(105%);
+    transition: transform 0.3s var(--ease), opacity 0.22s var(--ease), visibility 0.3s;
+    overflow-y: auto;
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .primary-nav.is-open {
+    transform: translateX(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .primary-nav ul {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+  }
+
+  .primary-nav a {
+    padding: 0.8rem 1rem;
+    font-size: 1.05rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .nav-toggle {
+    display: inline-grid;
+  }
+
+  .header-cta {
+    display: none;
+  }
+
+  body.nav-open {
+    overflow: hidden;
+  }
+
+  .nav-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 110;
+    background: rgba(4, 20, 14, 0.5);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s var(--ease), visibility 0.3s;
+  }
+
+  .nav-scrim.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2. Shared page furniture
+   -------------------------------------------------------------------------- */
+
+.page-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.75rem;
+  margin: 1.35rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text-muted);
+  font-size: var(--step--1);
+}
+
+.page-stats li {
+  margin: 0;
+  padding-right: 1.75rem;
+  border-right: 1px solid var(--border);
+}
+
+.page-stats li:last-child {
+  padding-right: 0;
+  border-right: 0;
+}
+
+.page-stats strong {
+  display: block;
+  color: var(--text);
+  font-size: var(--step-1);
+  line-height: 1.1;
+}
+
+.heading-note {
+  margin: 1rem 0 0;
+  padding: 0.75rem 0.9rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: var(--step--1);
+}
+
+.heading-note strong {
+  color: var(--text);
+}
+
+.section-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.6rem;
+}
+
+/* Grid children default to min-width:auto, so a long word or wide label can
+   force the track wider than its container. Keep every grid inside its box. */
+.grid > *,
+.directory-card {
+  min-width: 0;
+}
+
+.directory-card__top {
+  flex-wrap: wrap;
+  row-gap: 0.25rem;
+}
+
+.directory-card__top .muted {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* --------------------------------------------------------------------------
+   3. Departments
+   -------------------------------------------------------------------------- */
+
+.leader-spotlight {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  gap: clamp(1rem, 3vw, 2rem);
+  align-items: start;
+  padding: clamp(1.1rem, 2.5vw, 1.8rem);
+}
+
+.leader-spotlight__media {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+}
+
+.leader-spotlight__media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.leader-spotlight h2 {
+  margin: 0 0 0.2rem;
+  font-size: var(--step-2);
+}
+
+.leader-spotlight__role {
+  margin: 0 0 0.85rem;
+  color: var(--link);
+  font-weight: 700;
+}
+
+.leader-spotlight ul {
+  margin: 0.85rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--text-muted);
+}
+
+.leader-spotlight li + li {
+  margin-top: 0.35rem;
+}
+
+.person-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.15rem;
+}
+
+.person-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.person-card__media {
+  position: relative;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.person-card__media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.person-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.05rem 1.1rem 1.2rem;
+}
+
+.person-card__dept {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.person-card__name {
+  margin: 0;
+  font-size: var(--step-1);
+  line-height: 1.2;
+}
+
+.person-card__role {
+  margin: 0;
+  color: var(--link);
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.person-card__body p:not(.person-card__dept):not(.person-card__role) {
+  margin: 0.25rem 0 0;
+  color: var(--text-muted);
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+
+.person-card__body .btn {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+.unit-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.unit-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 1.15rem;
+}
+
+.unit-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: var(--step-0);
+}
+
+.unit-card h3 .icon {
+  width: 1.05em;
+  height: 1.05em;
+  color: var(--link);
+}
+
+.unit-card p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+
+/* --------------------------------------------------------------------------
+   4. Leadership archive
+   -------------------------------------------------------------------------- */
+
+.archive-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.archive-entry {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: clamp(0.9rem, 2.5vw, 1.6rem);
+  align-items: start;
+  padding: 1.15rem;
+}
+
+.archive-entry__media {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+}
+
+.archive-entry__media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  filter: grayscale(0.35);
+}
+
+.archive-entry h3 {
+  margin: 0 0 0.15rem;
+  font-size: var(--step-1);
+}
+
+.archive-entry__tenure {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.6rem;
+  padding: 0.18rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.archive-entry p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--step--1);
+  line-height: 1.6;
+}
+
+.archive-entry ul {
+  margin: 0.7rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--text-muted);
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+
+.archive-entry li + li {
+  margin-top: 0.25rem;
+}
+
+.archive-current {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.2rem 1.35rem;
+  border: 1px solid var(--brand-200);
+  border-radius: var(--radius-md);
+  background: var(--brand-50);
+  color: var(--brand-900);
+}
+
+.archive-current h3 {
+  margin: 0 0 0.15rem;
+  color: var(--brand-900);
+}
+
+.archive-current p {
+  margin: 0;
+  color: var(--brand-800);
+  font-size: var(--step--1);
+}
+
+[data-theme="dark"] .archive-current {
+  border-color: var(--brand-700);
+  background: var(--brand-900);
+  color: #eafff5;
+}
+
+[data-theme="dark"] .archive-current h3,
+[data-theme="dark"] .archive-current p {
+  color: #eafff5;
+}
+
+/* --------------------------------------------------------------------------
+   5. Locations
+   -------------------------------------------------------------------------- */
+
+.location-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.1rem;
+}
+
+.location-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 1.2rem;
+}
+
+.location-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.location-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: var(--step-1);
+}
+
+.location-card h3 .icon {
+  width: 1.05em;
+  height: 1.05em;
+  color: var(--link);
+}
+
+.location-card__city {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.location-card__address {
+  margin: 0;
+  color: var(--text);
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+
+.location-card__person {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--step--1);
+  line-height: 1.5;
+}
+
+.location-card__person strong {
+  color: var(--text);
+}
+
+.location-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-top: auto;
+  padding-top: 0.4rem;
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.location-card__actions a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--link);
+  text-decoration: none;
+}
+
+.location-card__actions a:hover {
+  text-decoration: underline;
+}
+
+.state-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.2rem;
+}
+
+.state-chips span {
+  padding: 0.14rem 0.48rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   6. Media centre
+   -------------------------------------------------------------------------- */
+
+.media-contact {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.media-contact__card {
+  padding: 1.3rem;
+}
+
+.media-contact__card h2 {
+  margin: 0 0 0.4rem;
+  font-size: var(--step-1);
+}
+
+.media-contact__list {
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--step--1);
+}
+
+.media-contact__list li {
+  display: flex;
+  gap: 0.55rem;
+  margin: 0.45rem 0 0;
+  color: var(--text-muted);
+}
+
+.media-contact__list .icon {
+  flex: none;
+  width: 1.05em;
+  height: 1.05em;
+  margin-top: 0.15em;
+  color: var(--link);
+}
+
+.media-story-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.media-story {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.media-story__media {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.media-story__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.media-story__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1rem;
+}
+
+.media-story__date {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.media-story h3 {
+  margin: 0;
+  font-size: var(--step-0);
+  line-height: 1.35;
+}
+
+.media-story__more {
+  margin-top: auto;
+  padding-top: 0.4rem;
+  color: var(--link);
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.media-archive {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: clamp(1.2rem, 3vw, 1.8rem);
+  background:
+    radial-gradient(600px 220px at 100% 0%, rgba(42, 163, 116, 0.16), transparent 65%),
+    var(--surface);
+}
+
+.media-archive__text {
+  max-width: 62ch;
+}
+
+.media-archive h2 {
+  margin: 0 0 0.35rem;
+}
+
+.media-archive p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.resource-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.resource-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.resource-card .icon {
+  flex: none;
+  width: 1.35rem;
+  height: 1.35rem;
+  margin-top: 0.1rem;
+  color: var(--link);
+}
+
+.resource-card strong {
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.resource-card span {
+  color: var(--text-muted);
+  font-size: var(--step--1);
+  line-height: 1.45;
+}
+
+/* --------------------------------------------------------------------------
+   7. Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1024px) {
+  .person-grid,
+  .unit-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .media-story-grid,
+  .resource-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .leader-spotlight,
+  .media-contact {
+    grid-template-columns: 1fr;
+  }
+
+  .leader-spotlight__media {
+    max-width: 210px;
+  }
+
+  .location-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .archive-entry {
+    grid-template-columns: 110px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .person-grid,
+  .unit-grid,
+  .media-story-grid,
+  .resource-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-stats li {
+    padding-right: 0;
+    border-right: 0;
+  }
+
+  .archive-entry {
+    grid-template-columns: 1fr;
+  }
+
+  .archive-entry__media {
+    max-width: 150px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-more__menu,
+  .nav-more__btn .icon {
+    transition: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   8. Live office map (locations.html)
+   -------------------------------------------------------------------------- */
+
+.map-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.map-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.map-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 38px;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--step--1);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.18s var(--ease), color 0.18s var(--ease), border-color 0.18s var(--ease);
+}
+
+.map-filter:hover {
+  border-color: var(--brand-300);
+  color: var(--text);
+}
+
+.map-filter[aria-pressed="true"] {
+  background: var(--brand-500);
+  border-color: var(--brand-500);
+  color: #ffffff;
+}
+
+.map-filter__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.map-filter__dot--zonal {
+  background: #008751;
+}
+
+.map-filter__dot--operations {
+  background: #b45309;
+}
+
+.map-toolbar__hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--step--1);
+}
+
+.map-basemap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.map-basemap__label {
+  color: var(--text-muted);
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+/* Leaflet markers */
+.nema-pin-wrap {
+  border: 0;
+  background: none;
+}
+
+.nema-pin {
+  display: block;
+  width: 24px;
+  height: 30px;
+  color: var(--pin-color, #008751);
+  filter: drop-shadow(0 3px 5px rgba(4, 24, 16, 0.32));
+  transition: transform 0.18s var(--ease);
+}
+
+.nema-pin svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.leaflet-marker-icon:hover .nema-pin,
+.leaflet-marker-icon:focus .nema-pin {
+  transform: translateY(-2px) scale(1.04);
+}
+
+/* Leaflet basemap and popup refinements */
+.leaflet-container {
+  background: var(--surface-2);
+  font-family: var(--font-sans);
+}
+
+.leaflet-container a {
+  color: var(--link);
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.leaflet-popup-content {
+  margin: 0.9rem 1rem;
+}
+
+.leaflet-popup-content .nema-info {
+  max-width: 260px;
+}
+
+.leaflet-control-attribution {
+  background: rgba(255, 255, 255, 0.82);
+  font-size: 10px;
+}
+
+.map-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.map-layout > * {
+  min-width: 0;
+}
+
+.map-frame {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  min-height: 430px;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--ink-100);
+  box-shadow: var(--shadow-sm);
+}
+
+.map-frame__canvas,
+.map-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.map-frame__canvas {
+  background:
+    radial-gradient(120% 120% at 20% 10%, rgba(0, 135, 81, 0.12), transparent 55%),
+    var(--surface-2);
+}
+
+.map-note {
+  margin: 0.7rem 0 0;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--brand-500);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: var(--step--1);
+  line-height: 1.5;
+}
+
+.map-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0.5rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  list-style: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.map-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+  border-radius: var(--radius-sm);
+}
+
+.map-legend__item[hidden] {
+  display: none;
+}
+
+.map-legend__btn {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  gap: 0.55rem;
+  min-width: 0;
+  padding: 0.55rem 0.6rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.map-legend__btn:hover,
+.map-legend__btn:focus-visible {
+  background: var(--brand-50);
+}
+
+.map-legend__dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  margin-top: 0.35rem;
+  border-radius: 50%;
+}
+
+.map-legend__dot--zonal {
+  background: #008751;
+}
+
+.map-legend__dot--operations {
+  background: #b45309;
+}
+
+.map-legend__dot--headquarters {
+  background: #1d4ed8;
+}
+
+.map-legend__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: var(--step--1);
+  line-height: 1.3;
+}
+
+.map-legend__text strong {
+  font-weight: 700;
+}
+
+.map-legend__text span {
+  color: var(--text-muted);
+}
+
+.map-legend__link {
+  flex: none;
+  padding: 0.4rem 0.5rem;
+  border-radius: var(--radius-sm);
+  color: var(--link);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.map-legend__link:hover {
+  text-decoration: underline;
+}
+
+/* InfoWindow content */
+.nema-info {
+  max-width: 260px;
+  color: #172033;
+  font-family: var(--font-sans);
+}
+
+.nema-info__type {
+  margin: 0 0 0.15rem;
+  color: #5b6b7f;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.nema-info__title {
+  margin: 0 0 0.35rem;
+  color: #0b3d2c;
+  font-size: 0.98rem;
+  line-height: 1.25;
+}
+
+.nema-info__meta {
+  margin: 0 0 0.4rem;
+  color: #334155;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.nema-info__links {
+  margin: 0.5rem 0 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.nema-info__links a {
+  color: #00734d;
+}
+
+@media (max-width: 860px) {
+  .map-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .map-frame {
+    min-height: 340px;
+    aspect-ratio: 4 / 3;
+  }
+
+  .map-legend {
+    max-height: 320px;
+  }
+}
